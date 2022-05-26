@@ -39,6 +39,7 @@ import android.hardware.usb.UsbManager;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.MemoryFile;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
@@ -311,7 +312,7 @@ public final class USBMonitor {
 		// get detected devices
 		final HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
 		// store those devices info before matching filter xml file
-		String fileName = Environment.getExternalStorageDirectory().getAbsolutePath()+ "/USBCamera/failed_devices.txt";
+		/*String fileName = Environment.getExternalStorageDirectory().getAbsolutePath()+ "/USBCamera/failed_devices.txt";
 
 		File logFile = new File(fileName);
 		if(!logFile.getParentFile().exists()) {
@@ -334,7 +335,14 @@ public final class USBMonitor {
 		}
 		if(fw != null) {
 			pw = new PrintWriter(fw);
+		}*/
+		MemoryFile memoryFile = null;
+		try{
+			memoryFile = new MemoryFile("USBCamera/failed_devices.txt",1<<8);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+		PrintWriter pw = new PrintWriter(memoryFile.getOutputStream());
 		final List<UsbDevice> result = new ArrayList<UsbDevice>();
 		if (deviceList != null) {
 			if ((filters == null) || filters.isEmpty()) {
@@ -355,7 +363,7 @@ public final class USBMonitor {
 							String devSystemVersion = android.os.Build.VERSION.RELEASE;
 							String devClass = String.valueOf(device.getDeviceClass());
 							String subClass = String.valueOf(device.getDeviceSubclass());
-							try{
+							//try{
 								if(pw != null) {
 									StringBuilder sb = new StringBuilder();
 									sb.append(devModel);
@@ -365,11 +373,11 @@ public final class USBMonitor {
 									sb.append("class="+devClass+", subclass="+subClass);
 									pw.println(sb.toString());
 									pw.flush();
-									fw.flush();
+									//fw.flush();
 								}
-							}catch (IOException e) {
-								e.printStackTrace();
-							}
+							//}catch (IOException e) {
+							//	e.printStackTrace();
+							//}
 						}
 					}
 				}
@@ -378,12 +386,15 @@ public final class USBMonitor {
 		if (pw != null) {
 			pw.close();
 		}
-		if (fw != null) {
+		/*if (fw != null) {
 			try {
 				fw.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+		}*/
+		if(memoryFile!=null) {
+			memoryFile.close();
 		}
 		return result;
 	}
