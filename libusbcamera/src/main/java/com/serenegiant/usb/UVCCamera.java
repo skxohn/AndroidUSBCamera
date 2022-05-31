@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UVCCamera {
-	private static final boolean DEBUG = false;	// TODO set false when releasing
+	private static final boolean DEBUG = true;	// TODO set false when releasing
 	private static final String TAG = UVCCamera.class.getSimpleName();
 	private static final String DEFAULT_USBFS = "/dev/bus/usb";
 
@@ -917,6 +917,63 @@ public class UVCCamera {
     		nativeSetZoom(mNativePtr, mZoomDef);
     	}
     }
+
+	public synchronized  int getMaxZoomLevel() { return mZoomMax; }
+	public synchronized  int getMinZoomLevel() { return mZoomMin; }
+	public synchronized  void setZoomLevel(int zoom){
+		if (mNativePtr != 0) {
+			if( zoom < mZoomMin) zoom = mZoomMin;
+			if( zoom > mZoomMax) zoom = mZoomMax;
+			if (zoom > 0) {
+				nativeSetZoom(mNativePtr, zoom);
+			}
+		}
+	}
+
+	public synchronized  int getZoomLevel(){
+		if(mNativePtr!=0){
+			return nativeGetZoom(mNativePtr);
+		}
+		return 0;
+	}
+
+	public synchronized  int getMaxExposureOffset() { return mExposureMax; }
+	public synchronized  int getMinExposureOffset() { return mExposureMin; }
+	public synchronized  void setExposure(int exposure){
+		if (mNativePtr != 0) {
+			if( exposure < mExposureMin) exposure = mExposureMin;
+			if( exposure > mExposureMax) exposure = mExposureMax;
+			if (exposure > 0) {
+				nativeSetExposure(mNativePtr, exposure);
+			}
+		}
+	}
+
+	public synchronized  int getExposureMode() {
+		if (mNativePtr != 0) {
+			return nativeGetExposureMode(mNativePtr);
+		}
+		return 0;
+	}
+
+	public synchronized  void setExposureMode(int mode){
+		if (mNativePtr != 0) {
+			nativeSetExposureMode(mNativePtr, mode);
+		}
+	}
+
+	public synchronized int getAutoFocusMode(){
+		if (mNativePtr != 0) {
+			return nativeGetAutoFocus(mNativePtr);
+		}
+		return 0;
+	}
+
+	public synchronized  void setAutoFocusMode(final boolean autofocus){
+		if (mNativePtr != 0) {
+			nativeSetAutoFocus(mNativePtr, autofocus);
+		}
+	}
 
 //================================================================================
 	public synchronized void updateCameraParams() {
